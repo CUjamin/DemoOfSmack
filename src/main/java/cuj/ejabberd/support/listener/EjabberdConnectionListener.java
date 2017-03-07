@@ -31,97 +31,71 @@ import org.jivesoftware.smack.XMPPConnection;
  *
  */
 public class EjabberdConnectionListener implements ConnectionListener {
-	 static final private Logger log = Logger.getLogger(EjabberdConnectionListener.class.getName());
-    private Timer tExit;
+    static final private Logger log = Logger.getLogger(EjabberdConnectionListener.class.getName());
     private String username;
     private String password;
-    private int logintime = 5000;
 
     @Override
     public void connectionClosed() {
-        log.info("Ejabberd Connection Listener : disconnect !");
+        log.info("Ejabberd Connection Listener : 连接_____________________________________________断开 !");
     }
 
     @Override
     public void connectionClosedOnError(Exception e) {
-    	log.info("EjabberdConnectionListener"+"连接关闭异常");
+        log.info("EjabberdConnectionListener"+"连接________________________________________________关闭异常");
 
         boolean error = e.getMessage().equals("stream:error (conflict)");
         if (!error) {
-
-        	EjabbberdConnectorImpl.getInstance().getXMPPTCPConnection().disconnect();
-
-            tExit = new Timer();
-            tExit.schedule(new timetask(), logintime);
+            EjabbberdConnectorImpl.getInstance().getXMPPTCPConnection().disconnect();
+            reconnectingIn(20000);
         }
     }
 
-    class timetask extends TimerTask {
-        @Override
-        public void run() {
-            username = EjabberdConfig.getInstance().getUserName();
-            password = EjabberdConfig.getInstance().getPassWord();
+    @Override
+    public void connected(XMPPConnection connection) {
+        log.info("connected" + "登陆___________________________________________________________成功");
+    }
+
+    @Override
+    public void authenticated(XMPPConnection connection, boolean resumed) {
+        log.info("authenticated ： " + resumed+"__________________________________________");
+    }
+
+    @Override
+    public void reconnectionSuccessful() {
+        log.info("reconnectionSuccessful" + "登陆____________________________________________成功");
+    }
+
+    @Override
+    public void reconnectingIn(int seconds) {
+        username = EjabberdConfig.getInstance().getUserName();
+        password = EjabberdConfig.getInstance().getPassWord();
+        while(seconds<900000)
+        {
+            log.info("reconnectingIn" + "尝试+++++++++++++++++++++++++++++++++++++++++++++++++++登陆 : "+seconds/1000+" s");
+            try
+            {
+                Thread.sleep(Long.valueOf(seconds));
+            }catch (InterruptedException e)
+            {
+                log.info("wait: " + e);
+            }
             if (username != null && password != null) {
                 EjabberdLoginImpl.chatConnector.connect();
-            	log.info("ConnectionListener"+"尝试登陆");
                 // 连接服务器
                 if (EjabberdLoginImpl.chatConnector.logIn()) {
-                	log.info("ConnectionListener"+"登陆成功");
+                    log.info("reconnectingIn" + "登陆成功");
+                    break;
                 } else {
-                	log.info("ConnectionListener"+"重新登录");
-                    tExit.schedule(new timetask(), logintime);
+                    log.info("reconnectingIn" + "重新失败");
                 }
             }
+            seconds+=10000;
         }
     }
 
-	@Override
-	public void connected(XMPPConnection connection) {
-		// TODO Auto-generated method stub
-		/*
-		 *cujamin
-		 *2016年9月22日
-		 */
-
-	}
-
-	@Override
-	public void authenticated(XMPPConnection connection, boolean resumed) {
-		// TODO Auto-generated method stub
-		/*
-		 *cujamin
-		 *2016年9月22日
-		 */
-
-	}
-
-	@Override
-	public void reconnectionSuccessful() {
-		// TODO Auto-generated method stub
-		/*
-		 *cujamin
-		 *2016年9月22日
-		 */
-
-	}
-
-	@Override
-	public void reconnectingIn(int seconds) {
-		// TODO Auto-generated method stub
-		/*
-		 *cujamin
-		 *2016年9月22日
-		 */
-
-	}
-
-	@Override
-	public void reconnectionFailed(Exception e) {
-		// TODO Auto-generated method stub
-		/*
-		 *cujamin
-		 *2016年9月22日
-		 */
-
-	}
+    @Override
+    public void reconnectionFailed(Exception e) {
+        log.info("reconnectionFailed" + "重新_______________________失败");
+    }
 }
