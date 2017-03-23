@@ -63,7 +63,7 @@ public class EjabbberdConnectorImpl implements EjabberdConnector {
 	private LiveThread liveThread;
 
 	private EjabberdConnectionListener connectionListener = null;
-
+//
 
 	/**
 	 * @param ejabberdConfig
