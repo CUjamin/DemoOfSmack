@@ -25,8 +25,11 @@ public class FileTransferHandler {
             //开始接收文件(将传输过来的文件内容输出到file中)
             transfer.recieveFile(file);
             //此处执行文件传输监听
-        } catch (SmackException | IOException e) {
-            e.printStackTrace();
+        } catch (SmackException se) {
+            se.printStackTrace();
+        }catch (IOException ie)
+        {
+            ie.printStackTrace();
         }
     }
 }

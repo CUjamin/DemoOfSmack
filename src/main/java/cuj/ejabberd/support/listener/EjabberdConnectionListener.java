@@ -12,14 +12,9 @@ package cuj.ejabberd.support.listener;
 * @version
 *
  */
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.logging.Logger;
 
-import cuj.ejabberd.Demo;
-import cuj.ejabberd.config.EjabberdConfig;
-import cuj.ejabberd.connector.EjabbberdConnectorImpl;
 import cuj.ejabberd.connector.EjabberdLoginImpl;
+import org.apache.log4j.Logger;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.XMPPConnection;
 
@@ -31,48 +26,39 @@ import org.jivesoftware.smack.XMPPConnection;
  *
  */
 public class EjabberdConnectionListener implements ConnectionListener {
-    static final private Logger log = Logger.getLogger(EjabberdConnectionListener.class.getName());
-    private String username;
-    private String password;
+    static final private Logger log = Logger.getLogger(EjabberdConnectionListener.class);
 
     @Override
     public void connectionClosed() {
-        log.info("Ejabberd Connection Listener : 连接_____________________________________________断开 !");
+        log.info("connectionClosed : 主动断开连接1_________________________________________________________ !");
     }
 
     @Override
     public void connectionClosedOnError(Exception e) {
-        log.info("EjabberdConnectionListener"+"连接________________________________________________关闭异常");
-
-        boolean error = e.getMessage().equals("stream:error (conflict)");
-        if (!error) {
-            EjabbberdConnectorImpl.getInstance().getXMPPTCPConnection().disconnect();
-            reconnectingIn(20000);
-        }
+        log.info("connectionClosedOnError ： 连接异常关闭2___________________________________________________________");
+        log.info(""+e);
+//        EjabberdLoginImpl.chatConnector.closeConnection();
+        reconnectingIn(10000);
     }
 
     @Override
     public void connected(XMPPConnection connection) {
-        log.info("connected" + "登陆___________________________________________________________成功");
+        log.info("connected ：连接成功3___________________________________________________________");
     }
 
     @Override
     public void authenticated(XMPPConnection connection, boolean resumed) {
-        log.info("authenticated ： " + resumed+"__________________________________________");
+        log.info("authenticated ：认证成功4___________________________________________________________");
+//        log.info("authenticated ： " + resumed+"__________________________________________");
     }
 
-    @Override
-    public void reconnectionSuccessful() {
-        log.info("reconnectionSuccessful" + "登陆____________________________________________成功");
-    }
+
 
     @Override
     public void reconnectingIn(int seconds) {
-        username = EjabberdConfig.getInstance().getUserName();
-        password = EjabberdConfig.getInstance().getPassWord();
-        while(seconds<900000)
+        log.info("reconnectingIn  ：重——新——连——接5__________________________________________________");
+        while(true)
         {
-            log.info("reconnectingIn" + "尝试+++++++++++++++++++++++++++++++++++++++++++++++++++登陆 : "+seconds/1000+" s");
             try
             {
                 Thread.sleep(Long.valueOf(seconds));
@@ -80,22 +66,23 @@ public class EjabberdConnectionListener implements ConnectionListener {
             {
                 log.info("wait: " + e);
             }
-            if (username != null && password != null) {
-                EjabberdLoginImpl.chatConnector.connect();
-                // 连接服务器
-                if (EjabberdLoginImpl.chatConnector.logIn()) {
-                    log.info("reconnectingIn" + "登陆成功");
-                    break;
-                } else {
-                    log.info("reconnectingIn" + "重新失败");
-                }
+            if (EjabberdLoginImpl.chatConnector.reConnectAndLogin()) {
+                break;
+            } else {
+//                reconnectionFailed(null);
             }
-            seconds+=10000;
+
         }
+    }
+    @Override
+    public void reconnectionSuccessful() {
+        log.info("reconnectionSuccessful  ：重连成功_6B__________________________________________________");
     }
 
     @Override
     public void reconnectionFailed(Exception e) {
-        log.info("reconnectionFailed" + "重新_______________________失败");
+        //TODO
+        log.info("reconnectionFailed  ：重连失败7__________________________________________________");
+        log.info(""+e);
     }
 }

@@ -45,7 +45,7 @@ public class MemorizingTrustManager implements X509TrustManager {
     private final static int NOTIFICATION_ID = 100509;
 
     static String KEYSTORE_DIR = "KeyStore";
-    static String KEYSTORE_FILE = "KeyStore.jks";
+    static String KEYSTORE_FILE = "KeyStore.p12";
 
     private static int decisionId = 0;
 
@@ -248,8 +248,14 @@ public class MemorizingTrustManager implements X509TrustManager {
         }
         try {
             ks.load(null, null);
-        } catch (NoSuchAlgorithmException | CertificateException | IOException e) {
-            LOGGER.log(Level.SEVERE, "getAppKeyStore(" + keyStoreFile + ")", e);
+        } catch (NoSuchAlgorithmException ne) {
+            LOGGER.log(Level.SEVERE, "getAppKeyStore(" + keyStoreFile + ")", ne);
+        }catch (CertificateException ce)
+        {
+
+        }catch (IOException ie)
+        {
+
         }
         InputStream is = null;
         try {

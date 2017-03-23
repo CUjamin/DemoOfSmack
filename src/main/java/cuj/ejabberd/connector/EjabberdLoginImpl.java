@@ -35,9 +35,7 @@ public class EjabberdLoginImpl implements EjabberdLogin {
     public boolean logIn()
     {
         chatConnector = EjabbberdConnectorImpl.getInstance(chatConfig);
-        chatConnector.connect();
-        boolean result = chatConnector.logIn();
-        return result;
+        return chatConnector.connectAndLogin();
     }
     public void logOut()
     {

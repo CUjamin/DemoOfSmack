@@ -140,7 +140,7 @@ public class PubSubManagerThread extends Thread {
     {
         return sub(nodeName , null);
     }
-    public boolean sub(String nodeName , SubMessageHandler subMessageHandler) {
+    public boolean sub(String nodeName , final SubMessageHandler subMessageHandler) {
         SubMessageHandler handler = null;
         if(null==subMessageHandler) handler = new SubMessageHandler();
         else handler = subMessageHandler;
@@ -157,8 +157,16 @@ public class PubSubManagerThread extends Thread {
                 }
             });
             node.subscribe(connection.getUser());
-        } catch (SmackException.NotConnectedException | XMPPException.XMPPErrorException | SmackException.NoResponseException e) {
-            log.error("NotConnectedException", e);
+        } catch (SmackException.NotConnectedException e ) {
+            log.error("SmackException.NotConnectedException", e);
+            return false;
+        }catch (XMPPException.XMPPErrorException xe)
+        {
+            log.error("XMPPException.XMPPErrorException", xe);
+            return false;
+        }catch (SmackException.NoResponseException se)
+        {
+            log.error("SmackException.NoResponseException", se);
             return false;
         }
         return true;

@@ -31,7 +31,7 @@ public class GroupChatManagerThread extends Thread{
     private GroupChatPresenceListener groupChatPresenceListener;
     private GroupChatPresenceInterceptor groupChatPresenceInterceptor;
 
-    private GroupChatManagerThread(String userJID ,XMPPConnection xmppConnection , GroupChatHandler groupChatHandler)
+    public GroupChatManagerThread(String userJID ,XMPPConnection xmppConnection , GroupChatHandler groupChatHandler)
     {
         this.userJID = userJID;
         groupChatMessageListener = new GroupChatMessageListener(groupChatHandler);
@@ -43,22 +43,11 @@ public class GroupChatManagerThread extends Thread{
             return;
         }
         groupChatManager = MultiUserChatManager.getInstanceFor(xmppConnection);
-        log.info("GroupChatManagerThread is inited");
     }
-    public static GroupChatManagerThread getInstance(String userJID ,XMPPConnection xmppConnection , GroupChatHandler groupChatHandler)
-    {
-        if(null==groupChatManagerThread)
-        {
-            groupChatManagerThread = new GroupChatManagerThread(userJID,xmppConnection,groupChatHandler);
-        }
-        return groupChatManagerThread;
-    }
-    public static GroupChatManagerThread getInstance(String userJID ,XMPPConnection xmppConnection )
-    {
-        return getInstance(userJID,xmppConnection,new GroupChatHandler());
-    }
+
     public void run()
     {
+        log.info(" [ GroupChatManagerThread is init ... ... ] ");
         groupChatManager.addInvitationListener(new InvitationListener()
         {
             @Override
@@ -75,7 +64,7 @@ public class GroupChatManagerThread extends Thread{
                 }
             }
         });
-        log.info("Group Chat manager Thread is OK");
+        log.info(" [ GroupChatManagerThread is init OK ] ");
     }
 
     /**
@@ -159,7 +148,7 @@ public class GroupChatManagerThread extends Thread{
      */
     public void getHostedRooms()
     {
-        List<HostedRoom> hostedRooms = new ArrayList<>();
+        List<HostedRoom> hostedRooms = new ArrayList<HostedRoom>();
         try{
             List<String> servers = groupChatManager.getServiceNames();
             for(String server : servers)
@@ -184,7 +173,7 @@ public class GroupChatManagerThread extends Thread{
      */
     public void getJoinedRooms()
     {
-        Set<String> joinedRooms = new HashSet<>();
+        Set<String> joinedRooms = new HashSet<String>();
         try{
             joinedRooms = groupChatManager.getJoinedRooms();
             if(joinedRooms.size()==0)

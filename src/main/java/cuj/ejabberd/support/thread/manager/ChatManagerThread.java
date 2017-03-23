@@ -13,6 +13,7 @@ import org.jivesoftware.smack.chat.ChatManager;
 import org.jivesoftware.smack.chat.ChatManagerListener;
 import org.jivesoftware.smack.chat.ChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smackx.offline.OfflineMessageManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,30 +31,19 @@ public class ChatManagerThread extends Thread
 	private Map<String,Chat> chatMap = new HashMap<String,Chat>();
 	private ChatHandler chatHander;
 
-	private ChatManagerThread(XMPPConnection xmppConnection , ChatHandler chatHander)
+	public ChatManagerThread(XMPPConnection connection , ChatHandler chatHander)
 	{
-		if(null==xmppConnection)
+		if(null==connection||connection.isConnected()==false)
 		{
 			return;
 		}
-		chatManager = ChatManager.getInstanceFor(xmppConnection);
+		chatManager = ChatManager.getInstanceFor(connection);
 		this.chatHander = chatHander;
-		log.info("Chat manager Thread init");
 	}
-	public static ChatManagerThread getInstance(XMPPConnection xmppConnection , ChatHandler chatHander)
-	{
-		if(null==chatManagerThread)
-		{
-			chatManagerThread = new ChatManagerThread(xmppConnection , chatHander);
-		}
-		return chatManagerThread;
-	}
-	public static ChatManagerThread getInstance(XMPPConnection xmppConnection )
-	{
-		return getInstance(xmppConnection , new ChatHandler());
-	}
+
 	public void run()
 	{
+		log.info(" [ Chat manager Thread init ... ... ] ");
 		EjabbberdConnectorImpl ejabbberdConnector = EjabbberdConnectorImpl.getInstance();
 		if(ejabbberdConnector ==null)
 		{
@@ -85,7 +75,7 @@ public class ChatManagerThread extends Thread
 						}
 					}
 				});
-		log.info("Chat manager Thread ok");
+		log.info(" [ Chat manager Thread init OK ] ");
 	}
 	public void setChatHander(ChatHandler chatHander)
 	{

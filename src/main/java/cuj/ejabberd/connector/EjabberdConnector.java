@@ -14,10 +14,8 @@ import java.util.HashMap;
 public interface EjabberdConnector {
     XMPPTCPConnection getXMPPTCPConnection();
     //登录
-    void connect();
+    boolean connectAndLogin();
     void closeConnection();
-    boolean logIn();
-
     //注册
     void registerUser(String username , String password );
 

@@ -19,18 +19,18 @@ public class RosterManagerThread extends Thread{
     private Roster roster = null;//花名册
     private HashMap friendMap = new HashMap();
     private RosterHandler rosterHandler;
-    public RosterManagerThread(XMPPConnection xmppConnection , RosterHandler rosterHandler)
+    public RosterManagerThread(XMPPConnection connection , RosterHandler rosterHandler)
     {
         this.rosterHandler = rosterHandler;
-        if(null==xmppConnection)
+        if(null==connection||connection.isConnected()==false)
         {
             return;
         }
-        roster = Roster.getInstanceFor(xmppConnection);
-        log.info("Roster manager Thread init");
+        roster = Roster.getInstanceFor(connection);
     }
     public void run()
     {
+        log.info(" [ Roster manager Thread init... ... ] ");
         roster.addRosterListener(new RosterListener(){
             int a=0;//登录时和有加好友请求时，都会调用entriesAdded，用a在区分”登录“和”有加好友请求“两种情况
             @Override
@@ -71,7 +71,7 @@ public class RosterManagerThread extends Thread{
                 }
             }
         });
-        log.info("Roster manager Thread ok");
+        log.info(" [ Roster manager Thread init OK ] ");
     }
     //添加好友
     public void addFriends(String friendjid,String name)

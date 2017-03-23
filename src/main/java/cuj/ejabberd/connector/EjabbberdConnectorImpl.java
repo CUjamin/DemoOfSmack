@@ -47,181 +47,244 @@ import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
 import org.jivesoftware.smackx.receipts.ReceiptReceivedListener;
 
 
-public class EjabbberdConnectorImpl implements EjabberdConnector{
+public class EjabbberdConnectorImpl implements EjabberdConnector {
 	static final private Logger log = Logger.getLogger(EjabbberdConnectorImpl.class);
 	static private EjabbberdConnectorImpl ejabberdConnector = null;
-	private EjabberdConfig ejabberdConfig= null;
+	private EjabberdConfig ejabberdConfig = null;
 	private XMPPTCPConnection connection = null;
 	private Presence presence = null;//状态
-	private DeliveryReceiptManager deliveryReceiptManager;//回执
-	public FileTransferManager fileTransferManager;
 
-	private ChatManagerThread chatManager;
-	private GroupChatManagerThread groupChatManager;
-	private RosterManagerThread rosterThread;
+	private DeliveryReceiptManager deliveryReceiptManager=null;//回执
+	public FileTransferManager fileTransferManager=null;
+	private ChatManagerThread chatManager=null;
+	private GroupChatManagerThread groupChatManager=null;
 	private PubSubManagerThread pubSubManager = null;
+	private RosterManagerThread rosterManager = null;
 	private LiveThread liveThread;
+
+	private EjabberdConnectionListener connectionListener = null;
 
 
 	/**
-	 *
 	 * @param ejabberdConfig
 	 * @return
 	 */
-	static public EjabbberdConnectorImpl getInstance(EjabberdConfig ejabberdConfig)
-	{
-		if(ejabberdConnector == null)
-		{
+	static public EjabbberdConnectorImpl getInstance(EjabberdConfig ejabberdConfig) {
+		if (ejabberdConnector == null) {
 			ejabberdConnector = new EjabbberdConnectorImpl(ejabberdConfig);
 		}
 		return ejabberdConnector;
 	}
 
 	/**
-	 *
 	 * @return
 	 */
-	static public EjabbberdConnectorImpl getInstance()
-	{
+	static public EjabbberdConnectorImpl getInstance() {
 		return ejabberdConnector;
 	}
 
 	/**
-	 *
 	 * @param ejabberdConfig
 	 */
-	private EjabbberdConnectorImpl(EjabberdConfig ejabberdConfig)
-	{
-		if(ejabberdConfig == null)
-		{
+	private EjabbberdConnectorImpl(EjabberdConfig ejabberdConfig) {
+		if (ejabberdConfig == null) {
 			log.info("ejabberdConfig is null");
-		}
-		else this.ejabberdConfig=ejabberdConfig;
+		} else this.ejabberdConfig = ejabberdConfig;
 	}
 
 	/**
-	 *
 	 * @return
 	 */
-	public XMPPTCPConnection getXMPPTCPConnection()
-	{
+	public XMPPTCPConnection getXMPPTCPConnection() {
 		return connection;
 	}
 
+	private boolean initXMPPTCPConnection() {
+		log.info("initXMPPTCPConnection...");
+		if (null == connection) {
+			XMPPTCPConnectionConfiguration.Builder configBuilder = XMPPTCPConnectionConfiguration.builder();
+			configBuilder.setServiceName(ejabberdConfig.getServiceName());
+			configBuilder.setHost(ejabberdConfig.getHost());
+			configBuilder.setPort(ejabberdConfig.getPort());
+			configBuilder.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
+			configBuilder.setCompressionEnabled(false);//压缩？
+			configBuilder.setKeystoreType("JKS");
+
+//************************************************************************************
+			//加入SSL方法
+			SSLContext sc = null;
+			try {
+				sc = SSLContext.getInstance("TLS");
+			} catch (NoSuchAlgorithmException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				return false;
+			}
+			MemorizingTrustManager mtm = new MemorizingTrustManager();
+			try {
+				sc.init(null, new X509TrustManager[]{mtm}, new java.security.SecureRandom());
+			} catch (KeyManagementException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				return false;
+			}
+			configBuilder.setCustomSSLContext(sc);
+			System.out.println(" ");
+			configBuilder.setHostnameVerifier(
+					mtm.wrapHostnameVerifier(new org.apache.http.conn.ssl.StrictHostnameVerifier()));
+
+			try {
+				TLSUtils.acceptAllCertificates(configBuilder);//接受所有证书
+			} catch (KeyManagementException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				return false;
+			} catch (NoSuchAlgorithmException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				return false;
+			}
+
+//****************************************************************************
+			XMPPTCPConnectionConfiguration config = configBuilder.build();
+			connection = new XMPPTCPConnection(config);
+			if(null==connectionListener)
+			{
+				connectionListener = new EjabberdConnectionListener();
+			}
+			connection.addConnectionListener(connectionListener);
+			return true;
+		}
+		else return true;
+	}
+
 	/**
 	 *
 	 */
-	public void connect()
-	{
-		XMPPTCPConnectionConfiguration.Builder configBuilder = XMPPTCPConnectionConfiguration.builder();
-		configBuilder.setServiceName( ejabberdConfig.getServiceName() );
-		configBuilder.setHost( ejabberdConfig.getHost() );
-		configBuilder.setPort( ejabberdConfig.getPort() );
-		configBuilder.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
-		configBuilder.setCompressionEnabled(false);//压缩？
-		configBuilder.setKeystoreType("JKS");
-
-//************************************************************************************
-		//加入SSL方法
-		SSLContext sc = null;
-		try {
-			sc = SSLContext.getInstance("TLS");
-		} catch (NoSuchAlgorithmException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		MemorizingTrustManager mtm = new MemorizingTrustManager();
-		try {
-			sc.init(null, new X509TrustManager[] { mtm }, new java.security.SecureRandom());
-		} catch (KeyManagementException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		configBuilder.setCustomSSLContext(sc);
-		System.out.println(" ");
-		configBuilder.setHostnameVerifier(
-				mtm.wrapHostnameVerifier(new org.apache.http.conn.ssl.StrictHostnameVerifier()));
-
-		try {
-			TLSUtils.acceptAllCertificates(configBuilder);//接受所有证书
-		} catch (KeyManagementException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (NoSuchAlgorithmException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+	public boolean connect() {
+		log.info("connect...");
+		if (null == connection) {
+			initXMPPTCPConnection();
 		}
 
-//****************************************************************************
-		XMPPTCPConnectionConfiguration config = configBuilder.build();
-		connection =new XMPPTCPConnection(config);
+		if (!connection.isConnected()) {
+			try {
+				connection.connect();
+				log.info("connect is success");
+			} catch (SmackException e) {
+				log.error("***************************SmackException");
+				log.error(e);
+				return false;
+			} catch (IOException e) {
+				log.error("***************************IOException");
+				log.error(e);
+				return false;
+			} catch (XMPPException e) {
+				log.error("***************************XMPPException");
+				log.error(e);
+				return false;
+			}
+			return true;
+		}
+		else return true;
+	}
 //		ProviderManager pm = new ProviderManager();
 //		pm.addExtensionProvider(DeliveryReceipt.ELEMENT, DeliveryReceipt.NAMESPACE, new DeliveryReceipt.Provider());
-//		pm.addExtensionProvider(DeliveryReceiptRequest.ELEMENT, DeliveryReceipt.NAMESPACE, new DeliveryReceiptRequest.Provider());
+//		pm.addExtensionProvider(DeliveryReceiptRequest.ELEMENT, DeliveryReceipt.NAMESPACE, new DeliveryReceiptRequest.Provider())
 
-		try {
-			//连接服务器
-			connection.connect();
-			System.out.println("connect is success");
-			//登录服务器(却输入账号密码)****************************
-		} catch (SmackException e) {
-			System.out.println("************1con");
-			e.printStackTrace();
-		} catch (IOException e) {
-			System.out.println("************2con");
-			e.printStackTrace();
-		} catch (XMPPException e) {
-			System.out.println("************3con");
-			e.printStackTrace();
-		}
-	}
 
 	/**
 	 * 登录:用户名user，密码password
 	 * @return
 	 */
-	public boolean logIn()
+	private boolean logIn()
 	{
-		try {
-			connection.login(ejabberdConfig.getUserName() , ejabberdConfig.getPassWord());
-			System.out.println("LOG IN");
-		} catch (XMPPException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (SmackException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
+		log.info("log in...");
+		if(!connection.isConnected())
+		{
+			connect();
 		}
+
+		if(connection.isConnected())
+		{
+			try {
+				connection.login(ejabberdConfig.getUserName() , ejabberdConfig.getPassWord());
+				log.info("log in success");
+				return true;
+			} catch (XMPPException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SmackException e) {
+				// TODO Auto-generated catch block
+				log.info("e.getClass() : "+e.getClass());
+				log.info("new SmackException.AlreadyLoggedInException().getClass(): "+new SmackException.AlreadyLoggedInException().getClass());
+				if(e.getClass().equals(new SmackException.AlreadyLoggedInException().getClass()))
+				{
+					return true;
+				}
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			log.info("connection is false");
+		}
+		return false;
+	}
+	public boolean initRest()
+	{
 		//自身状态
-//		setPresence();
+		setPresence();
 
 		//花名册
-		setRosterManager(new RosterHandler());
+		initRosterManager(new RosterHandler());
 
 		//聊天
-		setChatManager(new ChatHandler());
+		initChatManager(new ChatHandler());
 
 		//群聊
-		setGroupChatManager(new GroupChatHandler());
+		initGroupChatManager(new GroupChatHandler());
 
-		setLiveThread();
+		initLiveThread();
 
-		EjabberdConnectionListener connectionListener = new EjabberdConnectionListener();
-		connection.addConnectionListener(connectionListener);
-
+		return true;
+	}
+	public boolean connectAndLogin()
+	{
+		if(!initXMPPTCPConnection())return false;
+		if(!connect())return false;
+		if(!logIn())return false;
+		initRest();
+		return true;
+	}
+	public boolean reConnectAndLogin()
+	{
+		if(!initXMPPTCPConnection())return false;
+		if(!connect())return false;
+		if(!logIn())return false;
 		return true;
 	}
 	//
 	public void closeConnection()
 	{
-		connection.disconnect();
-		log.info("disconnect");
+		if(connection.isConnected())
+		{
+			connection.disconnect();
+			deliveryReceiptManager=null;//回执
+			fileTransferManager=null;
+			chatManager=null;
+			groupChatManager=null;
+			pubSubManager = null;
+			rosterManager = null;
+			log.info("disconnect");
+		}
+		else
+		{
+			log.info("!disconnect");
+		}
 	}
 
 //	private void setMessageRecvThread()
@@ -247,22 +310,23 @@ public class EjabbberdConnectorImpl implements EjabberdConnector{
 	/**
 	 * 设置花名册(好友列表)
 	 */
-	private void setRosterManager(RosterHandler rosterHandler)
+	private void initRosterManager(RosterHandler rosterHandler)
 	{
-		rosterThread = new RosterManagerThread(connection,rosterHandler);
+		rosterManager = new RosterManagerThread(connection,rosterHandler);
+		rosterManager.start();
 	}
 	public void addFriends(String friendjid,String name)
 	{
-		rosterThread.addFriends(friendjid,name);
+		rosterManager.addFriends(friendjid,name);
 	}
 
 	public void delFriends(String friendjid)
 	{
-		rosterThread.delFriends(friendjid);
+		rosterManager.delFriends(friendjid);
 	}
 	public HashMap showFriendsList()
 	{
-		return rosterThread.getFriendMap();
+		return rosterManager.getFriendMap();
 	}
 
 	/**
@@ -284,7 +348,7 @@ public class EjabbberdConnectorImpl implements EjabberdConnector{
 				});
 	}
 
-	public void setLiveThread()
+	public void initLiveThread()
 	{
 		liveThread = new LiveThread();
 		liveThread.start();
@@ -318,9 +382,9 @@ public class EjabbberdConnectorImpl implements EjabberdConnector{
 	 *
 	 * @param chatHandler
 	 */
-	private void setChatManager(ChatHandler chatHandler)
+	private void initChatManager(ChatHandler chatHandler)
 	{
-		chatManager = ChatManagerThread.getInstance(connection,chatHandler);
+		chatManager = new ChatManagerThread(connection,chatHandler);
 		chatManager.start();
 	}
 
@@ -347,11 +411,16 @@ public class EjabbberdConnectorImpl implements EjabberdConnector{
 	/**
 	 * @param groupChatHandler
 	 */
-	private void setGroupChatManager(GroupChatHandler groupChatHandler)
+	private void initGroupChatManager(GroupChatHandler groupChatHandler)
 	{
-		groupChatManager = GroupChatManagerThread.getInstance(ejabberdConfig.getUserName()+"@"+ejabberdConfig.getServiceName(),connection,groupChatHandler);
+		groupChatManager = new GroupChatManagerThread(ejabberdConfig.getUserName()+"@"+ejabberdConfig.getServiceName(),connection,groupChatHandler);
 		groupChatManager.start();
 	}
+
+	/**
+	 *
+	 * @param groupChatHandler
+	 */
 	public void setGroupChatHandler(GroupChatHandler groupChatHandler)
 	{
 
