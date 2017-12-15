@@ -13,8 +13,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
 	<dependencies>
@@ -33,54 +33,54 @@
 		<dependency>
 			<groupId>org.igniterealtime.smack</groupId>
 			<artifactId>smack-core</artifactId>
-			<version>4.1.7</version>
+			<version>4.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.igniterealtime.smack</groupId>
 			<artifactId>smack-tcp</artifactId>
-			<version>4.1.7</version>
+			<version>4.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.igniterealtime.smack</groupId>
 			<artifactId>smack-extensions</artifactId>
-			<version>4.1.7</version>
+			<version>4.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.igniterealtime.smack</groupId>
 			<artifactId>smack-bosh</artifactId>
-			<version>4.1.7</version>
+			<version>4.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.igniterealtime.smack</groupId>
+			<artifactId>smack-experimental</artifactId>
+			<version>4.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.igniterealtime.smack</groupId>
+			<artifactId>smack-resolver-javax</artifactId>
+			<version>4.2.2</version>
 		</dependency>
 		<!--<dependency>-->
 		<!--<groupId>org.igniterealtime.smack</groupId>-->
-		<!--<artifactId>smack-experimental</artifactId>-->
+		<!--<artifactId>smack-debug</artifactId>-->
 		<!--<version>4.1.7</version>-->
 		<!--</dependency>-->
-		<!--<dependency>-->
-		<!--<groupId>org.igniterealtime.smack</groupId>-->
-		<!--<artifactId>smack-resolver-javax</artifactId>-->
-		<!--<version>4.1.7</version>-->
-		<!--</dependency>-->
-		<!--&lt;!&ndash;<dependency>&ndash;&gt;-->
-		<!--&lt;!&ndash;<groupId>org.igniterealtime.smack</groupId>&ndash;&gt;-->
-		<!--&lt;!&ndash;<artifactId>smack-debug</artifactId>&ndash;&gt;-->
-		<!--&lt;!&ndash;<version>4.1.7</version>&ndash;&gt;-->
-		<!--&lt;!&ndash;</dependency>&ndash;&gt;-->
-		<!--<dependency>-->
-		<!--<groupId>org.igniterealtime.smack</groupId>-->
-		<!--<artifactId>smack-resolver-dnsjava</artifactId>-->
-		<!--<version>4.1.7</version>-->
-		<!--</dependency>-->
-		<!--<dependency>-->
-		<!--<groupId>org.igniterealtime.smack</groupId>-->
-		<!--<artifactId>smack-java7</artifactId>-->
-		<!--<version>4.1.7</version>-->
-		<!--</dependency>-->
-		<!--&lt;!&ndash; https://mvnrepository.com/artifact/org.igniterealtime.smack/smack-sasl-provided &ndash;&gt;-->
-		<!--<dependency>-->
-		<!--<groupId>org.igniterealtime.smack</groupId>-->
-		<!--<artifactId>smack-sasl-provided</artifactId>-->
-		<!--<version>4.1.7</version>-->
-		<!--</dependency>-->
+		<dependency>
+			<groupId>org.igniterealtime.smack</groupId>
+			<artifactId>smack-resolver-dnsjava</artifactId>
+			<version>4.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.igniterealtime.smack</groupId>
+			<artifactId>smack-java7</artifactId>
+			<version>4.2.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.igniterealtime.smack/smack-sasl-provided -->
+		<dependency>
+			<groupId>org.igniterealtime.smack</groupId>
+			<artifactId>smack-sasl-provided</artifactId>
+			<version>4.2.2</version>
+		</dependency>
 
 
 		<!--JSON-->

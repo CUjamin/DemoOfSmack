@@ -14,6 +14,8 @@ import org.jivesoftware.smack.chat.ChatManagerListener;
 import org.jivesoftware.smack.chat.ChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smackx.offline.OfflineMessageManager;
+import org.jxmpp.jid.EntityBareJid;
+import org.jxmpp.jid.EntityJid;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -90,6 +92,8 @@ public class ChatManagerThread extends Thread
 		}
 		else
 		{
+//			EntityJid to = new EntityBareJid() {
+//			}
 			newChat = chatManager.createChat(toJID , null);
 			chatMap.put(toJID,newChat);
 		}
@@ -100,6 +104,9 @@ public class ChatManagerThread extends Thread
 			newChat.sendMessage(JSON.toJSONString(txt));
 		} catch (SmackException.NotConnectedException e) {
 			log.error("Error Delivering block",e);
+		} catch (InterruptedException i)
+		{
+
 		}
 	}
 	public void closeChat(String toJID)

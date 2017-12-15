@@ -1,6 +1,5 @@
 package cuj.ejabberd.support.handler;
 
-import cuj.ejabberd.support.thread.manager.PubSubManagerThread;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smackx.pubsub.ItemPublishEvent;
 import org.jivesoftware.smackx.pubsub.PayloadItem;

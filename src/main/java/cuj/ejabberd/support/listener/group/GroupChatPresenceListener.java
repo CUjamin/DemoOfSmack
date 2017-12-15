@@ -11,6 +11,6 @@ public class GroupChatPresenceListener implements PresenceListener {
     private static final Logger log = Logger.getLogger(GroupChatPresenceListener.class);
     @Override
     public void processPresence(Presence presence) {
-        log.info(presence.getFrom().split("/")[1]+" status is "+presence.getType());
+        log.info(presence.getFrom()+" status is "+presence.getType());
     }
 }

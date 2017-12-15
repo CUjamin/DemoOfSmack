@@ -458,7 +458,7 @@ public class GroupChatManagerThread extends Thread{
                 sendMessageToChatRoom(groupChatCommand.groupRoomJID,
                         groupChatCommand.message);
                 break;
-            
+
             //// TODO: 2017/2/13
             case GroupChatCommandType.Get_Hosted_Rooms:
                 getHostedRooms();

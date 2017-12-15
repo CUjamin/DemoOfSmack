@@ -48,6 +48,7 @@ import org.jivesoftware.smackx.receipts.DeliveryReceipt;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptRequest;
 import org.jivesoftware.smackx.receipts.ReceiptReceivedListener;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 
 public class EjabbberdConnectorImpl implements EjabberdConnector {
@@ -106,7 +107,12 @@ public class EjabbberdConnectorImpl implements EjabberdConnector {
 		log.info("initXMPPTCPConnection...");
 		if (null == connection) {
 			XMPPTCPConnectionConfiguration.Builder configBuilder = XMPPTCPConnectionConfiguration.builder();
-			configBuilder.setServiceName(ejabberdConfig.getServiceName());
+			try {
+				configBuilder.setXmppDomain(ejabberdConfig.getServiceName());
+			}catch (XmppStringprepException x)
+			{
+				x.printStackTrace();
+			}
 			configBuilder.setHost(ejabberdConfig.getHost());
 			configBuilder.setPort(ejabberdConfig.getPort());
 			configBuilder.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
@@ -186,6 +192,10 @@ public class EjabbberdConnectorImpl implements EjabberdConnector {
 				log.error("***************************XMPPException");
 				log.error(e);
 				return false;
+			} catch (InterruptedException i)
+			{
+				log.error("***************************InterruptedException");
+				log.error(i);
 			}
 			return true;
 		}
@@ -229,6 +239,10 @@ public class EjabbberdConnectorImpl implements EjabberdConnector {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} catch (InterruptedException i)
+			{
+				log.info("ERROR................InterruptedException");
+				log.error(i);
 			}
 		}
 		else
@@ -308,6 +322,9 @@ public class EjabbberdConnectorImpl implements EjabberdConnector {
 		} catch (NotConnectedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+		} catch (InterruptedException i)
+		{
+			i.printStackTrace();
 		}
 	}
 
@@ -348,15 +365,15 @@ public class EjabbberdConnectorImpl implements EjabberdConnector {
 		deliveryReceiptManager = DeliveryReceiptManager.getInstanceFor(connection);
 		deliveryReceiptManager.autoAddDeliveryReceiptRequests();
 		deliveryReceiptManager.setAutoReceiptMode(DeliveryReceiptManager.AutoReceiptMode.always);
-		deliveryReceiptManager.addReceiptReceivedListener(
-				new ReceiptReceivedListener()
-				{
-					public void onReceiptReceived(String fromJid, String toJid, String receiptId, Stanza receipt)
-					{
-						log.info("in DeliveryReceipt");
-						deliveryReceiptHandler.handle( fromJid,  toJid,  receiptId,  receipt);
-					}
-				});
+//		deliveryReceiptManager.addReceiptReceivedListener(
+//				new ReceiptReceivedListener()
+//				{
+//					public void onReceiptReceived(String fromJid, String toJid, String receiptId, Stanza receipt)
+//					{
+//						log.info("in DeliveryReceipt");
+//						deliveryReceiptHandler.handle( fromJid,  toJid,  receiptId,  receipt);
+//					}
+//				});
 	}
 
 	public void initLiveThread()

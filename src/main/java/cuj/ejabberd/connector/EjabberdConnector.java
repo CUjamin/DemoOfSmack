@@ -17,7 +17,7 @@ public interface EjabberdConnector {
     boolean connectAndLogin();
     void closeConnection();
     //注册
-    void registerUser(String username , String password );
+//    void registerUser(String username , String password );
 
     //状态
     void setPresence();
