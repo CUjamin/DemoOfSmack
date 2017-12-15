@@ -38,12 +38,15 @@ import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.jivesoftware.smack.XMPPException.XMPPErrorException;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Stanza;
+import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smack.util.TLSUtils;
 import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.iqregister.AccountManager;
+import org.jivesoftware.smackx.receipts.DeliveryReceipt;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
+import org.jivesoftware.smackx.receipts.DeliveryReceiptRequest;
 import org.jivesoftware.smackx.receipts.ReceiptReceivedListener;
 
 
@@ -248,6 +251,7 @@ public class EjabbberdConnectorImpl implements EjabberdConnector {
 		//群聊
 		initGroupChatManager(new GroupChatHandler());
 
+		setDeliveryReceipt(new DeliveryReceiptHandler());
 		initLiveThread();
 
 		return true;
@@ -335,6 +339,12 @@ public class EjabbberdConnectorImpl implements EjabberdConnector {
 	 */
 	public void setDeliveryReceipt(final DeliveryReceiptHandler deliveryReceiptHandler)
 	{
+		log.info("set DeliveryReceipt");
+
+//		ProviderManager pm = new ProviderManager();
+//		pm.addExtensionProvider(DeliveryReceipt.ELEMENT, DeliveryReceipt.NAMESPACE, new DeliveryReceipt.Provider());
+//		pm.addExtensionProvider(DeliveryReceiptRequest.ELEMENT, DeliveryReceipt.NAMESPACE, new DeliveryReceiptRequest.Provider());
+
 		deliveryReceiptManager = DeliveryReceiptManager.getInstanceFor(connection);
 		deliveryReceiptManager.autoAddDeliveryReceiptRequests();
 		deliveryReceiptManager.setAutoReceiptMode(DeliveryReceiptManager.AutoReceiptMode.always);
@@ -343,6 +353,7 @@ public class EjabbberdConnectorImpl implements EjabberdConnector {
 				{
 					public void onReceiptReceived(String fromJid, String toJid, String receiptId, Stanza receipt)
 					{
+						log.info("in DeliveryReceipt");
 						deliveryReceiptHandler.handle( fromJid,  toJid,  receiptId,  receipt);
 					}
 				});

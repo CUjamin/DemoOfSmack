@@ -13,12 +13,12 @@ import java.util.Scanner;
 public class EjabberdControllerImpl implements EjabberdController
 {
     private static final Logger log = Logger.getLogger(EjabberdControllerImpl.class);
-//    private static final String defult_servername = "egoo2.com";
-//    private static final String defult_host = "192.168.1.3";
-    private static final String defult_servername = "cujamin-pc";
-    private static final String defult_host = "127.0.0.1";
+    private static final String defult_servername = "egoo2.com";
+//    private static final String defult_host = "192.168.1.179";
+//    private static final String defult_servername = "cujamin-pc";
+    private static final String defult_host = "120.25.88.24";
     private static final int defult_port = 5222;
-    private static final String defult_username = "1000";
+    private static final String defult_username = "1001";
     private static final String defult_password = "1234";
     private static final String defult_toJID = "mgw02@cujamin-pc";
     private static final String defult_groupRoomJID = "chat1@conference.cujamin-pc";

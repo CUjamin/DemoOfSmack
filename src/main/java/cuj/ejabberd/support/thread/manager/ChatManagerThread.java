@@ -61,7 +61,7 @@ public class ChatManagerThread extends Thread
 								@Override
 								public void processMessage(Chat chat, Message message)
 								{
-									log.info("ChatManagerThread\n"+message);
+//									log.info("ChatManagerThread\n"+message);
 									if(message.getType().equals(Message.Type.chat))
 									{
 										chatHander.handle(message);

@@ -15,7 +15,7 @@ public class ChatHandler {
         if(message.getBody()!=null)
         {
             try {
-                log.info("Recv Chat Message : "+message.getBody()+"\n");
+//                log.info("Recv Chat Message : "+message.getBody()+"\n");
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
